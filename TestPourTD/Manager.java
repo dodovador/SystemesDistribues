@@ -5,9 +5,9 @@ import java.net.*;
 public class Manager{ 
     private static ServerSocket managerSocket = null;
     private static Socket socket = null;
-    private static PrintWriter out = null;
-    private static BufferedReader in = null;
-    private static int n = 0;
+    private static ObjectOutputStream managerOuputStream = null;
+
+    private static Objet objet = null;
 
     public static void main (String[] args)
     {
@@ -16,22 +16,13 @@ public class Manager{
             managerSocket = new ServerSocket(2009);
             socket = managerSocket.accept();
 
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            out = new PrintWriter(socket.getOutputStream());
+            managerOuputStream = new ObjectOutputStream(socket.getOutputStream());
+            objet = new Objet("titi",120);
 
             System.out.println("Quelqu'un souhaite se connecter");
             
-            while(n < 5)
-            {
-                out.println(n);
-                out.flush();
-                n += 1;
-            }
+            managerOuputStream.writeObject(objet);
 
-            out.println("stop");
-            out.flush();
-
-            System.out.println(in.readLine());
         }
         catch(IOException e)
         {

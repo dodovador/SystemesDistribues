@@ -4,9 +4,8 @@ import java.net.*;
 
 public class Worker extends Thread{
     private static Socket socket = null;
-    private static PrintWriter out = null;
-    private static BufferedReader in = null;
-    private static String reponse = ""; 
+    private static ObjectInputStream workerInputStream = null;
+    private static Objet objet = null;
 
     public static void main (String[] args)
     {
@@ -16,28 +15,19 @@ public class Worker extends Thread{
             socket = new Socket("127.0.0.1",2009);
             System.out.println("Connexion établie avec le serveur");
 
-            out = new PrintWriter(socket.getOutputStream());
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            workerInputStream = new ObjectInputStream(socket.getInputStream());
+            objet = (Objet)workerInputStream.readObject();
 
-            do
-            {
-                reponse = in.readLine();
-                if(!reponse.equals("stop"))
-                {
-                    int n = Integer.parseInt(reponse);
-                    System.out.println(isPair(n));
-                }
-            }
-            while(!reponse.equals("stop"));
-
-            out.println("j ai finis !");
-            out.flush();
-
+            System.out.println(objet.getPrix());
 
         }
         catch(IOException e)
         {
             System.err.println("Aucun serveur à l'écoute du port "+socket.getLocalPort());
+        }
+        catch(ClassNotFoundException c)
+        {
+            System.err.println("classe non trouve");
         }
     }
 
