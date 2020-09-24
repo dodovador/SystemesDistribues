@@ -2,31 +2,52 @@ import java.io.*;
 import java.net.*;
 
 
-public class Manager{ 
-    private static ServerSocket managerSocket = null;
+public class Manager implements Runnable
+{ 
     private static Socket socket = null;
-    private static ObjectOutputStream managerOuputStream = null;
+    private static Objet objet;
 
-    private static Objet objet = null;
+    public Manager(Socket socket)
+    {
+        this.socket = socket;
+    }
 
     public static void main (String[] args)
     {
         try
         {
-            managerSocket = new ServerSocket(2009);
-            socket = managerSocket.accept();
+            ServerSocket managerSocket = new ServerSocket(2009);
+            System.out.println("Listening");
 
-            managerOuputStream = new ObjectOutputStream(socket.getOutputStream());
-            objet = new Objet("titi",120);
-
-            System.out.println("Quelqu'un souhaite se connecter");
-            
-            managerOuputStream.writeObject(objet);
-
+            while(true)
+            {
+                Socket socket = managerSocket.accept();
+                System.out.println("Connected");
+                new Thread(new Manager(socket)).start();
+            }
         }
         catch(IOException e)
         {
-            System.err.println("Le port "+managerSocket.getLocalPort()+" Est déjà utilisé !");
+            e.printStackTrace();
+        }
+        
+    }
+
+    public void run()
+    {
+        try
+        {
+            ObjectOutputStream managerOutputStream = new ObjectOutputStream(this.socket.getOutputStream());
+            objet = new Objet("titi",120);
+
+            System.out.println("Quelqu'un souhaite se connecter");
+            managerOutputStream.writeObject(objet);
+
+            socket.close();
+        }
+        catch(IOException e)
+        {
+            e.printStackTrace();
         }
     }
 }
